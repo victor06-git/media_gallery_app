@@ -1,5 +1,6 @@
 package com.vasensio.media_gallery_app
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -14,9 +15,22 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var imageView: ImageView
     private lateinit var selectButton: Button
-    val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+    private lateinit var thumbnailButton: Button
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         // Handle the returned Uri
-        imageView.setImageURI(uri)
+        uri?.let {
+            imageView.setImageURI(it)
+        }
+    }
+
+    private val takePicturePreview = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap: Bitmap? ->
+        // Display the bitmap here
+        bitmap?.let {
+            imageView.setImageBitmap(it)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,13 +43,19 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        selectButton = findViewById<Button>(R.id.button)
-        imageView = findViewById<ImageView>(R.id.imageView)
+        selectButton = findViewById(R.id.button)
+        imageView = findViewById(R.id.imageView)
+        thumbnailButton = findViewById(R.id.button2)
+
 
         selectButton.setOnClickListener {
             // Pass in the mime type you want to let the user select
             // as the input
             getContent.launch("image/*")
+        }
+
+        thumbnailButton.setOnClickListener {
+            takePicturePreview.launch(null)
         }
     }
 }
